@@ -1,77 +1,81 @@
-# Optimized training script targeting confusion matrix issues
-# Focus: Reduce false negatives & improve background separation
+# This is the final, most optimized training script.
+# It combines every lesson learned to target our specific problems
+# and push the mAP score to its maximum potential.
 
 from ultralytics import YOLO
 import os
 
 if __name__ == '__main__': 
     # --- Part 1: Training Execution ---
+    # Ensure we are in the correct directory
     this_dir = os.path.dirname(__file__)
     if this_dir:
         os.chdir(this_dir)
 
-    # Upgrade to largest model for maximum performance
-    model = YOLO("yolov8x.pt")  # CHANGED: Upgraded from yolov8m
+    # Use the largest, most powerful model for maximum performance.
+    model = YOLO("yolov8x.pt")
 
-    print("\n--- Confusion Matrix Optimized Training ---")
+    print("\n--- Final All-In Optimized Training Run ---")
     print("Using model: yolov8x.pt")
-    print("Targeting false negative reduction and background separation")
-    print("Training for 60 epochs with extended patience")
+    print("Targeting class confusion and hallucination reduction.")
+    print("Training for 100 epochs with early stopping.")
     print("----------------------------------------------------\n")
 
+    # This configuration is the result of our iterative analysis.
     results = model.train(
         # Model and Data
         data="yolo_params.yaml",
 
-        # Extended training for better convergence
-        epochs=60,          # CHANGED: Increased from 50
-        patience=25,        # CHANGED: Increased from 20
-        batch=8,            # CHANGED: Reduced from 16 for better gradients
+        # Training Duration: Long enough for the large model to converge.
+        epochs=100,
+        patience=30,  # Stop if no improvement for 30 epochs.
 
-        # Optimizer (fine-tuned for object detection)
+        # Batch Size: Smaller for more precise gradient updates.
+        batch=8,
+
+        # Optimizer: Stable settings for a long run.
         optimizer='AdamW',
-        lr0=0.0008,         # CHANGED: Slightly reduced for stability
-        lrf=0.00008,        # CHANGED: Lower final LR
+        lr0=0.0008,
+        lrf=0.00008,
         momentum=0.937,
         weight_decay=0.0005,
 
-        # CRITICAL: Loss weights targeting confusion matrix issues
-        box=12.0,           # CHANGED: Increased from 7.5 - better localization
-        cls=1.2,            # CHANGED: Increased from 0.5 - stronger classification
-        dfl=2.5,            # CHANGED: Increased from 1.5 - better distribution
-        kobj=2.5,           # CHANGED: Reduced from 5.0 - less aggressive FP penalty
-        
-        # Enhanced augmentations for better object-background separation
-        hsv_h=0.02,         # CHANGED: Increased color variation
-        hsv_s=0.8,          # CHANGED: Increased saturation variation
-        hsv_v=0.5,          # CHANGED: Increased brightness variation
-        degrees=20.0,       # CHANGED: Increased rotation
-        translate=0.15,     # CHANGED: Increased translation
-        scale=0.6,          # CHANGED: Increased scale variation
-        shear=2.0,          # CHANGED: Added shear augmentation
-        perspective=0.0001, # CHANGED: Added slight perspective
-        flipud=0.1,         # CHANGED: Added vertical flips
+        # --- CRITICAL: Loss Weights Tuned to Our Specific Problems ---
+        # We increase the penalty for bad boxes and wrong classes,
+        # but slightly reduce the penalty for hallucinations to find a better balance.
+        box=10.0,     # Heavily penalize inaccurate bounding boxes.
+        cls=1.0,      # Increase penalty for misclassifications.
+        dfl=2.0,      # Increase penalty for distribution errors.
+        kobj=3.0,     # A balanced penalty for hallucinations.
+
+        # --- CRITICAL: Full Suite of Advanced Augmentations ---
+        # This is an aggressive strategy to build a highly robust model.
+        hsv_h=0.020,
+        hsv_s=0.8,
+        hsv_v=0.5,
+        degrees=20.0,
+        translate=0.15,
+        scale=0.6,
+        shear=2.0,
+        perspective=0.0001,
+        flipud=0.1,
         fliplr=0.5,
         mosaic=1.0,
-        mixup=0.15,         # CHANGED: Increased mixup
-        copy_paste=0.15,    # CHANGED: Increased copy_paste
+        mixup=0.15,
+        copy_paste=0.15, # Use a slightly higher copy_paste to fight confusion.
+
+        # Regularization: Prevent the large model from overfitting.
+        label_smoothing=0.1,
         
-        # Enhanced regularization
-        label_smoothing=0.15, # CHANGED: Increased from 0.1
-        
-        # Additional parameters for better performance
+        # Other settings
         imgsz=640,
-        save_period=10,
         plots=True,
-        val=True,
-        
-        # Early stopping based on mAP50
-        monitor='metrics/mAP50(B)'
+        val=True
     )
 
-    print("\n--- Confusion Matrix Optimized Training Finished ---")
+    print("\n--- Final Training Finished ---")
     
-    # Post-training validation with TTA
-    print("Running validation with Test-Time Augmentation...")
-    val_results = model.val(data="yolo_params.yaml", augment=True)
-    print(f"Final mAP@0.5 with TTA: {val_results.box.map50}")
+    # Automatically run a final validation with Test-Time Augmentation
+    print("\n--- Running Final Validation with TTA ---")
+    final_metrics = model.val(augment=True)
+    print(f"Final mAP@0.5 with TTA: {final_metrics.box.map50:.4f}")
