@@ -2,7 +2,7 @@
 
 This project is a submission for the Duality AI - Space Station Hackathon. It features a highly optimized YOLOv8 model for detecting critical equipment in a simulated space station environment and a functional web application to demonstrate its real-world utility.
 
-**Final mAP@50 Score yet: 86.8%**
+**Final mAP@50 Score yet: 88.6%**
 
 
 📋 **Table of Contents**
@@ -65,7 +65,7 @@ The web page provides a simple interface. Click the "Choose an Image" button to 
 
 📈 **How to Reproduce Final Results**
 
-To verify our final score of **86.8% mAP**, you can run the prediction script on the provided test dataset using our best model.
+To verify our final score of **88.6% mAP**, you can run the prediction script on the provided test dataset using our best model.
 
 **Step 1: Run the Prediction Script**
 Use the `predict.py` script and point it to our best-performing model, which is included in this repository as `best.pt`.
