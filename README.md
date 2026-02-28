@@ -1,6 +1,6 @@
 #ISS Guardian - Space Station Object Detection
 
-This project is a submission for the Duality AI - Space Station Hackathon. It features a highly optimized YOLOv8 model for detecting critical equipment in a simulated space station environment and a functional web application to demonstrate its real-world utility.
+This project is a submission for the Duality AI -Space Station Hackathon. It features a highly optimized YOLOv8 model for detecting critical equipment in a simulated space station environment and a functional web application to demonstrate its real-world utility.
 
 **Final mAP@50 Score yet: 88.6%**
 
