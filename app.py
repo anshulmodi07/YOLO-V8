@@ -1,4 +1,4 @@
-# --- Import Necessary Libraries ---
+
 import os
 from flask import Flask, request, render_template, send_from_directory
 from ultralytics import YOLO
