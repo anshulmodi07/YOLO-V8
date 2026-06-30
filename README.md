@@ -1,130 +1,135 @@
-ISS Guardian - Space Station Object Detection
+# 🛰️ ISS Guardian — Space Station Object Detection
 
-This project is a submission for the Duality AI - Space Station Hackathon. It features a highly optimized YOLOv8 model for detecting critical equipment in a simulated space station environment and a functional web application to demonstrate its real-world utility.
+> Submission for the **Duality AI – Space Station Hackathon**
 
-**Final mAP@50 Score yet: 88.6%**
+ISS Guardian is a highly optimized YOLOv8 model for detecting critical safety equipment (fire extinguishers, toolboxes, oxygen tanks) in a simulated space station environment, paired with a Flask web app for real-world demonstration.
 
+**🏆 Final mAP@50: 88.6%**
 
-📋 **Table of Contents**
+---
 
-  * Environment & Dependency Requirements
-  * Instructions to Run & Test the Model
-  * How to Reproduce Final Results
-  * Notes on Expected Outputs
-  * Optimization Methodology
-  * Technology Stack
-  * Project Structure
+## Table of Contents
 
------
+- [Quick Start](#quick-start)
+- [Environment & Dependencies](#environment--dependencies)
+- [Running the Web App](#running-the-web-app)
+- [Reproducing Final Results](#reproducing-final-results)
+- [Understanding the Outputs](#understanding-the-outputs)
+- [Optimization Methodology](#optimization-methodology)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
 
-⚙️ **Environment & Dependency Requirements**
+---
 
-To ensure the project runs correctly, please follow these environment setup instructions.
-
-  * **Environment Manager:** Anaconda is recommended.
-  * **Python Version:** 3.10
-  * **Core Dependencies:** A complete list of all required Python packages is provided in the `requirements.txt` file. Key libraries include:
-      * `torch` & `torchvision` (for PyTorch)
-      * `ultralytics` (for YOLOv8)
-      * `Flask` (for the web application)
-      * `Pillow` & `opencv-python-headless` (for image processing)
-
-**Setup Command:**
-The easiest way to set up the environment is to use the provided `requirements.txt` file.
+## Quick Start
 
 ```bash
-# Create and activate a new Conda environment
-conda create -n duality_hackathon python=3.10
+conda create -n duality_hackathon python=3.10 -y
 conda activate duality_hackathon
-
-# Install all required packages
 pip install -r requirements.txt
-```
-
------
-
-✅ **Instructions to Run & Test the Model**
-
-This project includes a web application to demonstrate the model's capabilities on new images.
-
-**Step 1: Launch the Web Application**
-Ensure your Conda environment is activated and you are in the main project directory.
-
-```bash
 python app.py
 ```
 
-**Step 2: Access the Application**
-After running the command, the terminal will indicate that the server is running. Open your web browser and navigate to the following address:
-`http://127.0.0.1:5000/`
+Then open **http://127.0.0.1:5000/** in your browser and upload an image.
 
-**Step 3: Test the Model**
-The web page provides a simple interface. Click the "Choose an Image" button to upload an an image from your computer. The application will automatically process the image using our best-trained model (`best.pt`) and display the original image alongside the predicted image with bounding boxes.
+---
 
------
+## Environment & Dependencies
 
-📈 **How to Reproduce Final Results**
+| Requirement | Recommendation |
+|---|---|
+| Environment manager | Anaconda |
+| Python version | 3.10 |
+| GPU | CUDA-enabled GPU recommended for training (not required for inference) |
 
-To verify our final score of **88.6% mAP**, you can run the prediction script on the provided test dataset using our best model.
+Key packages (full list in `requirements.txt`):
 
-**Step 1: Run the Prediction Script**
-Use the `predict.py` script and point it to our best-performing model, which is included in this repository as `best.pt`.
+- `torch`, `torchvision` — PyTorch backbone
+- `ultralytics` — YOLOv8
+- `Flask` — web application server
+- `Pillow`, `opencv-python-headless` — image processing
+
+---
+
+## Running the Web App
+
+1. Activate your Conda environment and `cd` into the project directory.
+2. Launch the server:
+   ```bash
+   python app.py
+   ```
+3. Navigate to `http://127.0.0.1:5000/`.
+4. Click **"Choose an Image"**, upload a photo, and the app will run inference using `best.pt`, returning the original image side-by-side with predicted bounding boxes.
+
+---
+
+## Reproducing Final Results
+
+To verify the reported **88.6% mAP@50**, run the prediction script against the included test set using the best model checkpoint:
 
 ```bash
-# This command evaluates our best model on the test set
 python predict.py --model best.pt
 ```
 
-**Step 2: Verify the Output**
-The script will print a results table to the terminal. You should see the `mAP50` score for the `all` class matching our reported result of **0.868**.
+This prints a results table to the terminal — check that the `mAP50` row for the `all` class matches **0.886**.
 
-**(Optional)** To reproduce the training process itself, you can run the `train.py` script. Please note that this is a computationally intensive process that requires a CUDA-enabled GPU and may take a significant amount of time.
+### (Optional) Re-running Training
 
 ```bash
-# This will start the training process with our final optimized hyperparameters
 python train.py
 ```
 
------
+> ⚠️ Training is computationally intensive and requires a CUDA-enabled GPU. Expect a long runtime depending on hardware.
 
-📊 **Notes on Expected Outputs**
+---
 
-  * **Web Application:** The expected output is a web page displaying the original uploaded image and a new image with colored bounding boxes and confidence scores drawn around any detected objects (`FireExtinguisher`, `ToolBox`, `OxygenTank`).
-  * **Prediction Script (`predict.py`):** The terminal will output a table summarizing the performance metrics.
-      * **mAP50:** This is the primary metric for this hackathon. It represents the model's overall accuracy. A higher score is better.
-      * **Precision:** Of all the predictions the model made, what percentage were correct.
-      * **Recall:** Of all the real objects that exist in the images, what percentage did the model successfully find.
-      * **Confusion Matrix:** After running prediction, a `confusion_matrix.png` file will be saved in the `runs/detect/val` folder. This matrix provides a detailed breakdown of the model's errors, showing which classes it confuses with each other and which objects it fails to detect (classifying them as "background").
+## Understanding the Outputs
 
------
+**Web app:** returns the uploaded image plus an annotated copy with bounding boxes and confidence scores for `FireExtinguisher`, `ToolBox`, and `OxygenTank`.
 
-💡 **Optimization Methodology**
+**`predict.py`:** prints a metrics table to the terminal —
 
-Our approach was a systematic, iterative process focused on diagnosing and solving specific model weaknesses.
+| Metric | Meaning |
+|---|---|
+| **mAP50** | Primary competition metric; overall detection accuracy at IoU 0.5 |
+| **Precision** | Of all predictions made, the percentage that were correct |
+| **Recall** | Of all real objects present, the percentage successfully detected |
 
-1.  **Baseline Model:** We began with a `yolov8s` model, which revealed the primary challenge: very low recall.
-2.  **Improving Recall:** We upgraded to a `yolov8m` model, increased training epochs, and introduced aggressive data augmentation. This dramatically improved recall but also increased "hallucinations" (false positives).
-3.  **Reducing Hallucinations:** We implemented a custom loss function, increasing the `kobj` parameter to more heavily penalize predictions on the background. This successfully reduced hallucinations while maintaining high recall.
-4.  **Final Model Selection:** After multiple experiments, we selected the model with the best balance of high recall and low confusion, achieving our final score of **86.8% mAP**.
+A `confusion_matrix.png` is also saved to `runs/detect/val/`, showing class confusion and missed ("background") detections.
 
------
+---
 
-**Technology Stack**
+## Optimization Methodology
 
-  * **AI / Machine Learning:** PyTorch, Ultralytics YOLOv8, OpenCV, Pillow
-  * **Backend:** Python, Flask
-  * **Frontend:** HTML5, Tailwind CSS
-  * **Environment:** Conda
+Our approach was a systematic, iterative process targeting specific model weaknesses at each stage:
 
------
+1. **Baseline (`yolov8s`)** — established a starting point; revealed very low recall as the primary bottleneck.
+2. **Boosting recall** — upgraded to `yolov8m`, increased training epochs, and added aggressive data augmentation. Recall improved substantially, but false positives ("hallucinations") rose in turn.
+3. **Suppressing hallucinations** — introduced a custom loss configuration, raising the `kobj` parameter to more heavily penalize background false positives, cutting hallucinations while preserving recall gains.
+4. **Final selection** — evaluated multiple checkpoints and selected the model with the best recall/precision balance, landing on our final **88.6% mAP@50**.
 
-**Project Structure**
+---
 
-  * `app.py`: The main Flask application file for the web demo.
-  * `train.py`: The script containing the final, optimized hyperparameters for training.
-  * `predict.py`: The script for running predictions from the command line.
-  * `best.pt`: The model weights for our best-performing model (86.8% mAP).
-  * `templates/index.html`: The HTML frontend for the web app.
-  * `requirements.txt`: A list of all Python dependencies for easy setup.
-  * `Hackathon_Report.pdf`: The final performance and analysis report.
-  * `.gitignore`: Specifies which files and folders to exclude from the repository.
+## Technology Stack
+
+- **AI / ML:** PyTorch, Ultralytics YOLOv8, OpenCV, Pillow
+- **Backend:** Python, Flask
+- **Frontend:** HTML5, Tailwind CSS
+- **Environment:** Conda
+
+---
+
+## Project Structure
+
+```
+.
+├── app.py                  # Flask web application
+├── train.py                # Final optimized training hyperparameters
+├── predict.py               # CLI prediction/evaluation script
+├── best.pt                 # Best-performing model weights (88.6% mAP)
+├── templates/
+│   └── index.html          # Web app frontend
+├── requirements.txt        # Python dependencies
+├── Hackathon_Report.pdf    # Final performance and analysis report
+└── .gitignore
+```
